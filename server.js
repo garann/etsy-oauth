@@ -1,58 +1,32 @@
 var express = require( "express" ),
-    oauth = require( "oauth" ).OAuth;
+    etsyAuth = require( "./lib/etsy-auth" );
 
 var app = express.createServer(),
-    api_key = "your api key",
-    api_secret = "your api secret",
+    api_key = "your key here",
+    api_secret = "your secret here",
     entry = "/auth/etsy",
     callback = "/auth/etsy/callback",
-    o = new oauth(
-        "http://openapi.etsy.com/v2/oauth/request_token",
-        "http://openapi.etsy.com/v2/oauth/access_token",
+    o = new etsyAuth(
         api_key,
         api_secret,
-        "1.0",
-        "http://local.host:3754" + callback,
-        "HMAC-SHA1"
+        "http://local.host:3754",
+        callback
     );
 
 app.configure( function(){
-  app.use( app.router );
   app.use( express.cookieParser() );
   app.use( express.session( { secret: "example secret" } ) );
+  app.use( app.router );
+  app.use( express.static( __dirname + "/public" ) );
 });
 
 app.get( entry, function( req, res ) {
-    o.getOAuthRequestToken( function( err, token, token_secret, results ){
-        if ( err ) {
-            console.log( err );
-        } else {
-            req.session.oauth = {};
-            req.session.oauth.token = token;
-            req.session.oauth.token_secret = token_secret;
-            res.redirect( results[ "login_url" ] );
-        }
-    });
+    o.getRequestToken( req, res );
 });
 app.get( callback, function( req, res ) {
-    if ( req.session.oauth ) {
-        req.session.oauth.verifier = req.query.oauth_verifier;
-        var auth = req.session.oauth;
-        o.getOAuthAccessToken(
-            auth.token,
-            auth.token_secret,
-            auth.verifier, 
-            function( err, token, token_secret, results ){
-                if ( err ){
-                    console.log( err );
-                } else {
-                    req.session.oauth.access_token = token;
-                    req.session.oauth,access_token_secret = token_secret;
-                    console.log( results );
-                }
-            }
-        );
-    }
+    o.getAccessToken( req, res, function ( req, res ) {
+        res.redirect( "/success.html" );
+    });
 });
 
 app.listen( 3754 );

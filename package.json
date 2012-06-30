@@ -1,0 +1,24 @@
+{
+  "name": "etsy-oauth",
+  "version": "0.0.0",
+  "description": "Example code for authenticating with Etsy's API",
+  "main": "server.js",
+  "dependencies": {
+    "express": "~2.5.11",
+    "oauth": "~0.9.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/garann/etsy-oauth.git"
+  },
+  "keywords": [
+    "oauth",
+    "etsy"
+  ],
+  "author": "garann means",
+  "license": "WTFPL"
+}
